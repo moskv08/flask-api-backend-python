@@ -13,8 +13,8 @@ db = SQLAlchemy(app)
 class User(db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(80), unique=True, primary_key=False)  # Unique identifier for the user
-    email = db.Column(db.String(120), unique=True, primary_key=False)  # Unique email address for the user
+    name = db.Column(db.String(80), unique=True, nullable=False)  # Unique identifier for the user
+    email = db.Column(db.String(120), unique=True, nullable=False)  # Unique email address for the user
 
     def json(self):
         return {'id': self.id, 'name': self.name, 'email': self.email}  # Returns a dictionary representation of the user
@@ -59,25 +59,14 @@ def get_all_users():
 # Get User By Id
 @app.route('/api/flask/users/<int:user_id>', methods=['GET'])
 def get_user_by_id(user_id):
-    try:
-        # Retrieves a user by their ID from the database
-        user = User.query.get(user_id)
-        if not user:
-            return make_response(jsonify({'message': 'User not found'}), 404)
-        return jsonify(user.json()), 200
-    
-    except Exception as e:
-        return make_response(jsonify({'message': 'Error getting user', 'error': str(e)}), 500)
+    user = User.query.get_or_404(user_id)
+    return jsonify(user.json()), 200
 
 # Update User By Id
 @app.route('/api/flask/users/<int:user_id>', methods=['PUT'])
 def update_user_by_id(user_id):
+    user = User.query.get_or_404(user_id)
     try:
-        # Retrieves a user by their ID from the database
-        user = User.query.get(user_id)
-        if not user:
-            return make_response(jsonify({'message': 'User not found'}), 404)
-        # Updates the user's information from the request data
         data = request.get_json()
         user.name = data.get('name', user.name)
         user.email = data.get('email', user.email)
@@ -89,13 +78,8 @@ def update_user_by_id(user_id):
 # Delete User By Id
 @app.route('/api/flask/users/<int:user_id>', methods=['DELETE'])
 def delete_user_by_id(user_id):
+    user = User.query.get_or_404(user_id)
     try:
-        # Retrieves a user by their ID from the database
-        user = User.query.get(user_id)
-        if not user:
-            return make_response(jsonify({'message': 'User not found'}), 404)
-        
-        # Deletes the user from the database
         db.session.delete(user)
         db.session.commit()
         return make_response(jsonify({'message': 'User deleted successfully'}), 200)
