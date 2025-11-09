@@ -2,12 +2,15 @@ from flask import Flask, request, jsonify, make_response
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from os import environ
+from config import config
+
 
 app = Flask(__name__)
 
 # Enables cors for all routes
 CORS(app)
-app.config['SQLALCHEMY_DATABASE_URI'] = environ.get('DATABASE_URL')
+# app.config['SQLALCHEMY_DATABASE_URI'] = environ.get('DATABASE_URL')
+app.config.from_object(config['development'])  # Use development config
 db = SQLAlchemy(app)
 
 class User(db.Model):
