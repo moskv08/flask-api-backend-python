@@ -1,7 +1,7 @@
-from flask import Flask, jsonify
+from flask import Flask
 from config import config
 from models.user import db
-from routes.users import users_bp
+from routes import routes_bp
 
 def create_app(config_name='default'):
     """Application factory function"""
@@ -14,11 +14,7 @@ def create_app(config_name='default'):
     db.init_app(app)
     
     # Register blueprints
-    app.register_blueprint(users_bp, url_prefix='/')
-    
-    @app.route('/test', methods=['GET'])
-    def test():
-        return jsonify({'message': 'Server is running'})
+    app.register_blueprint(routes_bp, url_prefix='/')
     
     return app
 
