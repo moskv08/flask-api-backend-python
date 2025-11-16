@@ -76,7 +76,7 @@ python app.py
 - [x] Add CSS styling for better UI
 
 ### Enhancement Tasks
-- [ ] Add input validation for todo creation
+- [x] Add input validation for todo creation
 - [ ] Implement proper error handling and status codes
 - [ ] Add authentication system (login/logout)
 - [ ] Implement user-specific todo lists
