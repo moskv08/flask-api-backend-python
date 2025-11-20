@@ -65,9 +65,9 @@ class UserService:
             
             if existing_user:
                 raise ValueError('User with this email already exists')
-            
             user.email = email
         
+        db.session.commit()
         return user
 
     @staticmethod

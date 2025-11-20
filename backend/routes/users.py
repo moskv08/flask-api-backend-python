@@ -62,36 +62,50 @@ def get_all_users():
 
 @users_bp.route('/api/flask/users/<int:user_id>', methods=['PUT'])
 def update_user(user_id):
-    data = request.get_json()
-    
-    # Input validation with Marshmallow
-    is_valid, result = validate_user_data(data)
-    if not is_valid:
-        return jsonify({'error': 'Validation failed', 'details': result}), 400
-    
-    user = User.query.get_or_404(user_id)
-    
-    name = result.get('name')
-    email = result.get('email')
-    
-    # Check for existing email conflict
-    if email and email != user.email:
-        existing_user = User.query.filter_by(email=email).first()
-        if existing_user:
-            return jsonify({'error': 'User with this email already exists'}), 409
-    
-    # Update user
     try:
-        if name is not None:
-            user.name = name
-        if email is not None:
-            user.email = email
+        user = User.query.get(user_id)
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
             
-        db.session.commit()
-        return jsonify(user.json())
+        data = request.get_json()
+        updated_user = UserService.update_user(user, data)
+        
+        return jsonify({
+            'message': 'User updated successfully',
+            'user': {
+                'id': updated_user.id,
+                'name': updated_user.name,
+                'email': updated_user.email
+            }
+        }), 200
+        
+    except ValueError as e:
+        return jsonify({'error': str(e)}), 400
     except Exception as e:
-        db.session.rollback()
-        return jsonify({'error': 'Failed to update user'}), 500
+        return jsonify({'error': 'Internal server error'}), 500
+    
+def update_user(user_id):
+    try:
+        user = User.query.get(user_id)
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+            
+        data = request.get_json()
+        updated_user = UserService.update_user(user, data)
+        
+        return jsonify({
+            'message': 'User updated successfully',
+            'user': {
+                'id': updated_user.id,
+                'name': updated_user.name,
+                'email': updated_user.email
+            }
+        }), 200
+        
+    except ValueError as e:
+        return jsonify({'error': str(e)}), 400
+    except Exception as e:
+        return jsonify({'error': 'Internal server error'}), 500
 
 @users_bp.route('/api/flask/users/<int:user_id>', methods=['DELETE'])
 def delete_user(user_id):
