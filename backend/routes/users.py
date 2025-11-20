@@ -2,6 +2,7 @@
 from flask import Blueprint, request, jsonify
 from marshmallow import Schema, fields, ValidationError
 from models.user import User, db
+from services.user_service import UserService
 
 users_bp = Blueprint('users', __name__)
 
@@ -20,31 +21,39 @@ def validate_user_data(data):
 
 @users_bp.route('/api/flask/users', methods=['POST'])
 def create_user():
-    data = request.get_json()
-    
-    # Input validation with Marshmallow
-    is_valid, result = validate_user_data(data)
-    if not is_valid:
-        return jsonify({'error': 'Validation failed', 'details': result}), 400
-    
-    name = result.get('name')
-    email = result.get('email')
-    
-    # Check for existing user
-    existing_user = User.query.filter_by(email=email).first()
-    if existing_user:
-        return jsonify({'error': 'User with this email already exists'}), 409
-    
-    # Create new user
+
     try:
-        user = User(name=name, email=email)
-        db.session.add(user)
-        db.session.commit()
+        data = request.get_json()
+
+        # Input validation with Marshmallow
+        is_valid, result = validate_user_data(data)
+        if not is_valid:
+            return jsonify({'error': 'Validation failed', 'details': result}), 400
+    
+        name = result.get('name')
+        email = result.get('email')
+
+        # Check for existing user
+        existing_user = User.query.filter_by(email=email).first()
+        if existing_user:
+            return jsonify({'error': 'User with this email already exists'}), 409
         
-        return jsonify(user.json()), 201
+        user = UserService.create_user(name, email)
+        # Assuming you have a way to save the user to database
+        
+        return jsonify({
+            'message': 'User created successfully',
+            'user': {
+                'id': user.id,
+                'name': user.name,
+                'email': user.email
+            }
+        }), 201
+        
+    except ValueError as e:
+        return jsonify({'error': str(e)}), 400
     except Exception as e:
-        db.session.rollback()
-        return jsonify({'error': 'Failed to create user'}), 500
+        return jsonify({'error': 'Internal server error'}), 500
 
 @users_bp.route('/api/flask/users', methods=['GET'])
 def get_all_users():
