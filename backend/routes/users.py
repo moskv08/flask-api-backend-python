@@ -57,8 +57,29 @@ def create_user():
 
 @users_bp.route('/api/flask/users', methods=['GET'])
 def get_all_users():
-    users = User.query.all()
-    return jsonify([user.json() for user in users])
+    try:
+        users = UserService.get_all_users()
+        return jsonify(users)
+    except Exception as e:
+        return jsonify({'error': 'Internal server error'}), 
+
+@users_bp.route('/api/flask/users/<int:user_id>', methods=['GET'])
+def get_user_by_id(user_id):
+    try:
+        user = UserService.get_user_by_id(user_id)
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+            
+        return jsonify({
+            'user': {
+                'id': user.id,
+                'name': user.name,
+                'email': user.email
+            }
+        }), 200
+        
+    except Exception as e:
+        return jsonify({'error': 'Internal server error'}), 500
 
 @users_bp.route('/api/flask/users/<int:user_id>', methods=['PUT'])
 def update_user(user_id):
@@ -68,29 +89,12 @@ def update_user(user_id):
             return jsonify({'error': 'User not found'}), 404
             
         data = request.get_json()
-        updated_user = UserService.update_user(user, data)
         
-        return jsonify({
-            'message': 'User updated successfully',
-            'user': {
-                'id': updated_user.id,
-                'name': updated_user.name,
-                'email': updated_user.email
-            }
-        }), 200
-        
-    except ValueError as e:
-        return jsonify({'error': str(e)}), 400
-    except Exception as e:
-        return jsonify({'error': 'Internal server error'}), 500
-    
-def update_user(user_id):
-    try:
-        user = User.query.get(user_id)
-        if not user:
-            return jsonify({'error': 'User not found'}), 404
+        # Validate update data
+        is_valid, result = validate_user_data(data)
+        if not is_valid:
+            return jsonify({'error': 'Validation failed', 'details': result}), 400
             
-        data = request.get_json()
         updated_user = UserService.update_user(user, data)
         
         return jsonify({
@@ -109,12 +113,16 @@ def update_user(user_id):
 
 @users_bp.route('/api/flask/users/<int:user_id>', methods=['DELETE'])
 def delete_user(user_id):
-    user = User.query.get_or_404(user_id)
-    
     try:
-        db.session.delete(user)
-        db.session.commit()
-        return jsonify({'message': 'User deleted successfully'})
+        user = User.query.get(user_id)
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+            
+        UserService.delete_user(user)
+        
+        return jsonify({'message': 'User deleted successfully'}), 200
+        
+    except ValueError as e:
+        return jsonify({'error': str(e)}), 400
     except Exception as e:
-        db.session.rollback()
-        return jsonify({'error': 'Failed to delete user'}), 500
+        return jsonify({'error': 'Internal server error'}), 500

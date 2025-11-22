@@ -28,6 +28,20 @@ class UserService:
         return new_user
 
     @staticmethod
+    def get_all_users():
+        """Get all users"""
+        users = User.query.all()
+        return [user.json() for user in users]
+    
+    @staticmethod
+    def get_user_by_id(user_id):
+        """Get a user by ID"""
+        user = User.query.get(user_id)
+        if not user:
+            raise ValueError('User not found')
+        return user
+
+    @staticmethod
     def update_user(user, data):
         """Update user with validation"""
         name = data.get('name')
@@ -77,5 +91,9 @@ class UserService:
         if not user:
             raise ValueError('User not found')
         
-        # Delete logic here (assuming db session is managed elsewhere)
-        pass
+        try:
+            db.session.delete(user)
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            raise ValueError('Failed to delete user')
