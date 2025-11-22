@@ -77,7 +77,7 @@ python app.py
 
 ### Enhancement Tasks
 - [x] Add input validation for todo creation
-- [ ] Implement proper error handling and status codes
+- [x] Implement proper error handling and status codes
 - [ ] Add authentication system (login/logout)
 - [ ] Implement user-specific todo lists
 - [ ] Add due date and priority features

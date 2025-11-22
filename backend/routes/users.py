@@ -1,23 +1,10 @@
 # backend/routes/users.py
 from flask import Blueprint, request, jsonify
-from marshmallow import Schema, fields, ValidationError
 from models.user import User, db
 from services.user_service import UserService
+from validation.user_validation import validate_user_data
 
 users_bp = Blueprint('users', __name__)
-
-class UserSchema(Schema):
-    name = fields.Str(required=True, validate=lambda x: len(x) >= 2)
-    email = fields.Email(required=True)
-
-# Validate request data
-def validate_user_data(data):
-    schema = UserSchema()
-    try:
-        result = schema.load(data)
-        return True, result
-    except ValidationError as err:
-        return False, err.messages
 
 @users_bp.route('/api/flask/users', methods=['POST'])
 def create_user():
