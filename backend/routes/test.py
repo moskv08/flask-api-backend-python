@@ -5,4 +5,9 @@ test_bp = Blueprint('test', __name__)
 
 @test_bp.route('/test', methods=['GET'])
 def test():
-    return jsonify({'message': 'Server is running'})
+    try:
+        # Simulate some operation that could fail
+        result = {'message': 'Server is running'}
+        return jsonify(result), 200
+    except Exception as e:
+        return jsonify({'error': 'Internal server error'}), 500
