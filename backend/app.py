@@ -3,6 +3,8 @@ from flask import Flask, jsonify
 from config import config
 from models.user import db
 from routes import routes_bp
+from flask_jwt_extended import JWTManager
+
 
 def create_app(config_name='default'):
     """Application factory function"""
@@ -13,6 +15,8 @@ def create_app(config_name='default'):
     
     # Initialize extensions
     db.init_app(app)
+
+    jwt = JWTManager(app)
     
     # Register blueprints
     app.register_blueprint(routes_bp, url_prefix='/')
