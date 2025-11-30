@@ -23,7 +23,7 @@ class ProductionConfig(Config):
 class TestingConfig(Config):
     """Testing configuration"""
     TESTING = True
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
 
 # Configuration dictionary
 config = {

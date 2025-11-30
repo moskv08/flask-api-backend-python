@@ -16,7 +16,7 @@ def create_app(config_name='default'):
     # Initialize extensions
     db.init_app(app)
 
-    JWTManager(app)
+    jwt = JWTManager(app)
     
     # Register blueprints
     app.register_blueprint(routes_bp, url_prefix='/')

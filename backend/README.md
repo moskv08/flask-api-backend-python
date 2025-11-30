@@ -72,8 +72,8 @@ python app.py
 - [x] Implement Todo model with SQLAlchemy
 - [x] Set up database configuration
 - [x] Create basic CRUD routes for todos
-- [x] Implement HTML templates for UI
-- [x] Add CSS styling for better UI
+- [] Implement HTML templates for UI
+- [] Add CSS styling for better UI
 
 ### Enhancement Tasks
 - [x] Add input validation for todo creation
