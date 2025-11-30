@@ -1,5 +1,6 @@
 # backend/routes/users.py
 from flask import Blueprint, request, jsonify
+from flask_jwt_extended import jwt_required
 from models.user import User, db
 from services.user_service import UserService
 from validation.user_validation import validate_user_data
@@ -7,6 +8,7 @@ from validation.user_validation import validate_user_data
 users_bp = Blueprint('users', __name__)
 
 @users_bp.route('/api/flask/users', methods=['POST'])
+@jwt_required()
 def create_user():
 
     try:
@@ -43,6 +45,7 @@ def create_user():
         return jsonify({'error': 'Internal server error'}), 500
 
 @users_bp.route('/api/flask/users', methods=['GET'])
+@jwt_required()
 def get_all_users():
     try:
         users = UserService.get_all_users()
@@ -51,6 +54,7 @@ def get_all_users():
         return jsonify({'error': 'Internal server error'}), 
 
 @users_bp.route('/api/flask/users/<int:user_id>', methods=['GET'])
+@jwt_required()
 def get_user_by_id(user_id):
     try:
         user = UserService.get_user_by_id(user_id)
@@ -69,6 +73,7 @@ def get_user_by_id(user_id):
         return jsonify({'error': 'Internal server error'}), 500
 
 @users_bp.route('/api/flask/users/<int:user_id>', methods=['PUT'])
+@jwt_required()
 def update_user(user_id):
     try:
         user = User.query.get(user_id)
@@ -99,6 +104,7 @@ def update_user(user_id):
         return jsonify({'error': 'Internal server error'}), 500
 
 @users_bp.route('/api/flask/users/<int:user_id>', methods=['DELETE'])
+@jwt_required()
 def delete_user(user_id):
     try:
         user = User.query.get(user_id)
