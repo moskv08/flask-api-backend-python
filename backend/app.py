@@ -16,7 +16,7 @@ def create_app(config_name='default'):
     # Initialize extensions
     db.init_app(app)
 
-    jwt = JWTManager(app)
+    JWTManager(app)
     
     # Register blueprints
     app.register_blueprint(routes_bp, url_prefix='/')
@@ -28,7 +28,7 @@ def create_app(config_name='default'):
     
     @app.errorhandler(Exception)
     def handle_general_error(error):
-        return jsonify({'error': 'Internal server error'}), 500
+        return jsonify({'error': 'Internal server error', 'details': str(error)}), 500
     
     return app
 
