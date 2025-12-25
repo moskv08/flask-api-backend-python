@@ -2,6 +2,7 @@ from flask import Blueprint
 
 # Import your route blueprints here
 from .users import users_bp
+from .todos import todo_bp
 from .test import test_bp
 from .auth import auth_bp
 
@@ -10,6 +11,7 @@ routes_bp = Blueprint('routes', __name__)
 
 # Register the individual blueprints (no url_prefix needed since it's already in users.py)
 routes_bp.register_blueprint(users_bp)
+routes_bp.register_blueprint(todo_bp)
 routes_bp.register_blueprint(test_bp)
 routes_bp.register_blueprint(auth_bp)
 

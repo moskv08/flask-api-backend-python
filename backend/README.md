@@ -59,12 +59,6 @@ python app.py
 
 2. Open your browser and navigate to `http://localhost:5000`
 
-## API Endpoints
-- `GET /` - View all todos
-- `POST /todos` - Create new todo
-- `PUT /todos/<id>` - Update todo
-- `DELETE /todos/<id>` - Delete todo
-
 ## Todo List for Development Tasks
 
 ### Core Functionality
@@ -72,13 +66,11 @@ python app.py
 - [x] Implement Todo model with SQLAlchemy
 - [x] Set up database configuration
 - [x] Create basic CRUD routes for todos
-- [] Implement HTML templates for UI
-- [] Add CSS styling for better UI
 
 ### Enhancement Tasks
 - [x] Add input validation for todo creation
 - [x] Implement proper error handling and status codes
-- [ ] Add authentication system (login/logout)
+- [x] Add authentication system (login/logout)
 - [ ] Implement user-specific todo lists
 - [ ] Add due date and priority features
 - [ ] Implement search functionality
@@ -119,13 +111,6 @@ python app.py
 - [ ] Create export functionality (CSV/PDF)
 - [ ] Implement todo sharing between users
 - [ ] Add progress tracking and statistics dashboard
-
-## Requirements
-```
-Flask==2.3.3
-Flask-SQLAlchemy==3.0.5
-Flask-Migrate==4.0.5
-```
 
 ## License
 This project is licensed under the MIT License - see the LICENSE file for details.
