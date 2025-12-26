@@ -1,22 +1,3 @@
-# from flask import Blueprint, jsonify, request
-# from flask_jwt_extended import create_access_token
-
-# # Create blueprint for test routes
-# login_bp = Blueprint('login', __name__)
-
-# @login_bp.route('/login', methods=['POST'])
-# def login():
-#     # Example authentication logic
-#     email = request.json.get('email')
-#     password = request.json.get('password')
-    
-#     # Validate credentials (replace with actual DB lookup)
-#     if email == 'user@example.com' and password == 'password':
-#         # Create token
-#         access_token = create_access_token(identity=123)  # User ID
-#         return jsonify({'access_token': access_token})
-    
-#     return jsonify({'error': 'Invalid credentials'}), 401
 # backend/routes/auth.py
 from flask import Blueprint, request, jsonify
 from models.user import User, db
@@ -43,9 +24,9 @@ def login():
         password = data['password']
         
         # Find user by email
-        # user = User.query.filter_by(email=email).first()
-        # if not user:
-        #     return jsonify({'error': 'Invalid credentials'}), 401
+        user = User.query.filter_by(email=email).first()
+        if not user:
+            return jsonify({'error': 'Invalid credentials'}), 401
             
         # Verify password (assuming you have a method to verify passwords)
         # For demonstration, we'll assume password is stored in plain text
@@ -53,8 +34,7 @@ def login():
         
         # Create access token
         access_token = create_access_token(
-            # identity=user.id,
-            identity=1,
+            identity=user.id,
             expires_delta=timedelta(hours=1)
         )
         
@@ -62,12 +42,12 @@ def login():
             'message': 'Login successful',
             'access_token': access_token,
             'user': {
-                'id': 1,
-                'name': "John",
-                'email': 'fab@acme.com'
-                # 'id': user.id,
-                # 'name': user.name,
-                # 'email': user.email
+                # 'id': 1,
+                # 'name': "John",
+                # 'email': 'fab@acme.com',
+                'id': user.id,
+                'name': user.name,
+                'email': user.email
             }
         }), 200
         
