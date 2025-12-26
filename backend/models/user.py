@@ -1,7 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
-
-db = SQLAlchemy()
+from .db import db
 
 class User(db.Model):
     __tablename__ = 'users'
@@ -10,9 +9,7 @@ class User(db.Model):
     name = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
 
-    # Use string reference for the relationship to avoid circular imports
-    # todo = relationship('Todo', backref = 'user')
-    todo = db.relationship('Todo', back_populates='user')
+    todos = relationship('Todo', back_populates='user', cascade='all, delete-orphan')
 
     def json(self):
         return {

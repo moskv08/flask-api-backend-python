@@ -1,7 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
-
-db = SQLAlchemy()
+from .db import db
 
 class Todo(db.Model):
     __tablename__ = 'todos'
@@ -12,7 +11,7 @@ class Todo(db.Model):
     completed = db.Column(db.Boolean, default=False, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
 
-    user = db.relationship('User', back_populates='todo')
+    user = relationship('User', back_populates='todos')
     
     def json(self):
         return {
