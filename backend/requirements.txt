@@ -5,4 +5,5 @@ Flask-SQLAlchemy
 Flask-CORS
 python-dotenv
 marshmallow
-flask_jwt_extended 
+flask_jwt_extended
+alembic

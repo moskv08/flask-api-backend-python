@@ -71,8 +71,8 @@ python app.py
 - [x] Add input validation for todo creation
 - [x] Implement proper error handling and status codes
 - [x] Add authentication system (login/logout)
-- [ ] Implement user-specific todo lists
-- [ ] Add due date and priority features
+- [x] Implement user-specific todo lists
+- [x] Add due date and priority features
 - [ ] Implement search functionality
 - [ ] Add filtering by status (completed/pending)
 - [ ] Create API documentation with Swagger/OpenAPI
@@ -94,14 +94,6 @@ python app.py
 - [ ] Implement deployment scripts
 - [ ] Configure production WSGI server (Gunicorn)
 - [ ] Set up proper SSL configuration
-
-### UI/UX Improvements
-- [ ] Add responsive design for mobile devices
-- [ ] Implement dark mode toggle
-- [ ] Add animations and transitions
-- [ ] Create better form validation feedback
-- [ ] Implement drag-and-drop reordering
-- [ ] Add keyboard shortcuts for common actions
 
 ### Advanced Features
 - [ ] Implement real-time updates with WebSockets
