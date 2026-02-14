@@ -34,7 +34,7 @@ def login():
         
         # Create access token
         access_token = create_access_token(
-            identity=user.id,
+            identity=str(user.id),
             expires_delta=timedelta(hours=1)
         )
         
@@ -42,9 +42,6 @@ def login():
             'message': 'Login successful',
             'access_token': access_token,
             'user': {
-                # 'id': 1,
-                # 'name': "John",
-                # 'email': 'fab@acme.com',
                 'id': user.id,
                 'name': user.name,
                 'email': user.email
