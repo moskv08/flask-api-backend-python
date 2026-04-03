@@ -98,3 +98,25 @@ def delete_todo(user_id, todo_id):
 
     except ValueError as e:
         return jsonify({'error': str(e)}), 400
+
+@todo_bp.route('/api/flask/users/<int:user_id>/todos/search', methods=['GET'])
+@jwt_required()
+def search_todos(user_id):
+    """Search todos for a specific user"""
+    try:
+        UserService.get_user_by_id(user_id)
+        
+        query = request.args.get('q', '').strip()
+        
+        if not query or len(query) < 2:
+            return jsonify({'error': 'Query must be at least 2 characters'}), 400
+        
+        todos = TodoService.search_todos(user_id, query)
+        
+        return jsonify({
+            'todos': [todo.json() for todo in todos],
+            'count': len(todos)
+        }), 200
+
+    except ValueError as e:
+        return jsonify({'error': str(e)}), 400

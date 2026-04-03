@@ -74,7 +74,7 @@ python app.py
 - [x] Implement user-specific todo lists
 - [x] Add due date and priority features
 - [ ] Introduct Brave MCP to LM Studio
-- [ ] Implement search functionality
+- [x] Implement search functionality
 - [ ] Add filtering by status (completed/pending)
 - [ ] Create API documentation with Swagger/OpenAPI
 - [ ] Add unit and integration tests

@@ -1,3 +1,4 @@
+# backend/services/todo_service.py
 from datetime import datetime
 from models.todo import Todo, db
 
@@ -65,3 +66,19 @@ class TodoService:
         
         db.session.delete(todo)
         db.session.commit()
+
+    @staticmethod
+    def search_todos(user_id, query):
+        """Search todos by title or description"""
+        if not query or len(query.strip()) < 2:
+            raise ValueError("Search query must be at least 2 characters")
+
+        # Use LIKE with wildcards for partial matching (case-insensitive)
+        search_pattern = f"%{query.lower()}%"
+        return Todo.query.filter(
+            Todo.user_id == user_id,
+            db.or_(
+                db.func.lower(Todo.title).like(search_pattern),
+                db.func.lower(Todo.description).like(search_pattern)
+            )
+        ).all()
