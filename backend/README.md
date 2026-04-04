@@ -1,109 +1,78 @@
-# Flask API Application
+# Flask API Service
 
-## Project Overview
-This is a simple Flask-based API application that allows users to manage their users with CRUD operations.
+A high-performance, layered Flask API application built with Python, utilizing `uv` for lightning-fast dependency management and `Docker` for containerized deployment.
 
-## Features
-- Create new todo items
-- Read all todo items
-- Update existing todo items
-- Delete todo items
-- Mark todos as complete/incomplete
+## 🏗️ Architecture Overview
+The application follows a strict layered architecture to ensure separation of concerns:
+**API Routes** $\rightarrow$ **Services** $\rightarrow$ **Models**
 
-## Project Structure
-```
-todo-app/
-├── app.py
-├── models/
-│   └── todo.py
-├── routes/
-│   ├── __init__.py
-│   └── todos.py
-├── templates/
-│   ├── base.html
-│   └── index.html
-├── static/
-│   └── style.css
-└── requirements.txt
-```
+- **Routes**: HTTP request parsing and response formatting.
+- **Services**: Core business logic orchestration.
+- **Models**: Data structures and persistence logic.
 
-## Setup Instructions
+## 🛠️ Development Workflow
 
-### 1. Prerequisites
-- Python 3.7+
-- pip
+### Prerequisites
+- [uv](https://github.com/astral-sh/uv) (Recommended for Python management)
+- Docker & Docker Compose (For full-stack local environment)
 
-### 2. Installation Steps
-1. Clone the repository:
+### Local Setup
+1. **Clone the repository:**
+   ```bash
+   git clone <repository-url>
+   cd <project-folder>
+   ```
+
+2. **Synchronize dependencies:**
+   Using `uv`, this command creates a virtual environment and installs all required packages from `uv.lock`.
+   ```bash
+   uv sync
+   ```
+
+3. **Run the application:**
+   ```bash
+   uv run flask run
+   ```
+
+### Docker Deployment
+To spin up the entire stack (API, Database, etc.) using the provided Compose configuration:
 ```bash
-git clone <repository-url>
-cd todo-app
+docker compose up -d
 ```
 
-2. Create and activate virtual environment:
-```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-```
+## 🚀 Project Structure
+- `/backend`: Core API implementation.
+- `/compose.yml`: Multi-container orchestration.
+- `pyproject.toml`: Unified project configuration and dependency definitions.
 
-3. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
+## 📜 License
+This project is licensed under the MIT License.
 
-### 3. Running the Application
-1. Start the Flask development server:
-```bash
-python app.py
-```
+---
 
-2. Open your browser and navigate to `http://localhost:5000`
+### 2. The `backend/README.md`
+This version contains the technical "Deep Dive" and your reorganized **Development Roadmap**.
 
-## Todo List for Development Tasks
+# Backend Service Implementation
 
-### Core Functionality
-- [x] Create basic Flask application structure
-- [x] Implement Todo model with SQLAlchemy
-- [x] Set up database configuration
-- [x] Create basic CRUD routes for todos
+This directory contains the core logic of the Flask API, following a layered architecture pattern.
 
-### Enhancement Tasks
-- [x] Add input validation for todo creation
-- [x] Implement proper error handling and status codes
-- [x] Add authentication system (login/logout)
-- [x] Implement user-specific todo lists
-- [x] Add due date and priority features
-- [ ] Introduct Brave MCP to LM Studio
-- [x] Implement search functionality
-- [ ] Add filtering by status (completed/pending)
-- [ ] Create API documentation with Swagger/OpenAPI
-- [ ] Add unit and integration tests
-- [ ] Implement pagination for large todo lists
+## 📂 Internal Structure
 
-### Security & Production Tasks
-- [ ] Add CSRF protection
-- [ ] Implement rate limiting
-- [ ] Add input sanitization
-- [ ] Configure production-ready database (PostgreSQL)
-- [ ] Add logging configuration
-- [ ] Implement proper error pages
-- [ ] Add environment variable configuration
+- `routes/`: Endpoint definitions (e.s., `/users`, `/tasks`).
+- `services/`: Business logic implementation and orchestration.
+- `models/`: SQLAlchemy models and database schema definitions.
+- `validation/`: Pydantic models for request/response integrity.
+- `alembic/`: Database migration scripts managed via Alembic.
 
-### Deployment Tasks
-- [ ] Create Dockerfile for containerization
-- [ ] Add CI/CD pipeline configuration
-- [ ] Implement deployment scripts
-- [ ] Configure production WSGI server (Gunicorn)
-- [ ] Set up proper SSL configuration
+## 🗄️ Database Migrations
+We use **Alembic** to manage database schema changes. To generate and apply migrations:
 
-### Advanced Features
-- [ ] Implement real-time updates with WebSockets
-- [ ] Add todo categories/tags
-- [ ] Implement recurring todos
-- [ ] Add todo reminders (email/sms)
-- [ ] Create export functionality (CSV/PDF)
-- [ ] Implement todo sharing between users
-- [ ] Add progress tracking and statistics dashboard
+1. **Create a new migration:**
+   ```bash
+   uv run alembic revision --autogenerate -m "description of change"
+   ```
 
-## License
-This project is licensed under the MIT License - see the LICENSE file for details.
+2. **Apply migrations:**
+   ```bash
+   uv run alembic upgrade head
