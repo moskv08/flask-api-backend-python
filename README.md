@@ -7,8 +7,8 @@ This is a fullstack Flask application built with Docker orchestration. It demons
 ```
 .
 ├── backend/
-│   ├── main.py
-│   ├── requirements.txt
+│   ├── app.py
+│   ├── pyproject.toml
 │   └── flask.dockerfile
 ├── compose.yml
 ├── README.md
@@ -22,6 +22,8 @@ This is a fullstack Flask application built with Docker orchestration. It demons
 - Runs on port 4000
 - Uses PostgreSQL database
 - Dockerized with flask.dockerfile
+- Implements a layered architecture (Routes → Services → Models)
+- Uses uv for fast Python dependency management
 
 ### Database Service (PostgreSQL)
 - Runs on port 5432
@@ -32,6 +34,7 @@ This is a fullstack Flask application built with Docker orchestration. It demons
 
 ### Prerequisites
 - Docker and Docker Compose installed
+- uv (for local development)
 
 ### Running the Application
 
@@ -54,9 +57,11 @@ docker-compose -f compose.yml up --build
 ## Backend
 
 The backend is built with Flask and includes:
-- RESTful API endpoints
+- RESTful API endpoints (users, todos, auth, test)
 - Database integration (PostgreSQL)
 - Docker configuration
+- Layered architecture pattern (Routes → Services → Models)
+- uv dependency management
 
 ### Setup Instructions
 
@@ -67,12 +72,12 @@ The backend is built with Flask and includes:
 
 2. Install dependencies (if running without Docker):
    ```bash
-   pip install -r requirements.txt
+   uv sync
    ```
 
 3. Run the application:
    ```bash
-   python main.py
+   uv run flask run
    ```
 
 ### API Endpoints
