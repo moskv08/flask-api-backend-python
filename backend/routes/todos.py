@@ -6,7 +6,7 @@ from datetime import datetime
 
 todo_bp = Blueprint('todos', __name__)
 
-@todo_bp.route('/api/users/<int:user_id>/todos', methods=['GET'])
+@todo_bp.route('/users/<int:user_id>/todos', methods=['GET'])
 @jwt_required()
 def get_user_todos(user_id):
     """Get all todos for a specific user"""
@@ -20,7 +20,7 @@ def get_user_todos(user_id):
         return jsonify({'error': str(e)}), 400
 
 
-@todo_bp.route('/api/users/<int:user_id>/todos', methods=['POST'])
+@todo_bp.route('/users/<int:user_id>/todos', methods=['POST'])
 @jwt_required()
 def create_todo(user_id):
     """Create a new todo for a specific user"""
@@ -60,7 +60,7 @@ def create_todo(user_id):
         return jsonify({'error': str(e)}), 400
 
 
-@todo_bp.route('/api/users/<int:user_id>/todos/<int:todo_id>', methods=['PUT'])
+@todo_bp.route('/users/<int:user_id>/todos/<int:todo_id>', methods=['PUT'])
 @jwt_required()
 def update_todo(user_id, todo_id):
     """Update a specific todo"""
@@ -85,7 +85,7 @@ def update_todo(user_id, todo_id):
         return jsonify({'error': str(e)}), 400
 
 
-@todo_bp.route('/api/users/<int:user_id>/todos/<int:todo_id>', methods=['DELETE'])
+@todo_bp.route('/users/<int:user_id>/todos/<int:todo_id>', methods=['DELETE'])
 @jwt_required()
 def delete_todo(user_id, todo_id):
     """Delete a specific todo"""
@@ -99,7 +99,7 @@ def delete_todo(user_id, todo_id):
     except ValueError as e:
         return jsonify({'error': str(e)}), 400
 
-@todo_bp.route('/api/users/<int:user_id>/todos/search', methods=['GET'])
+@todo_bp.route('/users/<int:user_id>/todos/search', methods=['GET'])
 @jwt_required()
 def search_todos(user_id):
     """Search todos for a specific user"""

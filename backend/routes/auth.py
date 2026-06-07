@@ -11,7 +11,7 @@ auth_bp = Blueprint('auth', __name__)
 # Token blacklist for logout functionality
 blacklisted_tokens = set()
 
-@auth_bp.route('/api/auth/login', methods=['POST'])
+@auth_bp.route('/auth/login', methods=['POST'])
 def login():
     try:
         data = request.get_json()
@@ -51,7 +51,7 @@ def login():
     except Exception as e:
         return jsonify({'error': 'Internal server error'}), 500
 
-@auth_bp.route('/api/auth/logout', methods=['POST'])
+@auth_bp.route('/auth/logout', methods=['POST'])
 @jwt_required()
 def logout():
     try:
