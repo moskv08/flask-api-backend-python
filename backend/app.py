@@ -20,7 +20,7 @@ def create_app(config_name='default'):
         db.create_all()
 
     # Register blueprints
-    app.register_blueprint(routes_bp, url_prefix='/')
+    app.register_blueprint(routes_bp, url_prefix='/api')
 
     # Error handlers
     @app.errorhandler(ValueError)
