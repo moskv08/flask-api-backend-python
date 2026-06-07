@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required
 from services.todo_service import TodoService
 from services.user_service import UserService
+from exceptions import ValidationError, NotFoundError, DatabaseError
 from datetime import datetime
 
 todo_bp = Blueprint('todos', __name__)
@@ -16,8 +17,12 @@ def get_user_todos(user_id):
         todos = TodoService.get_todos_by_user(user_id)
         return jsonify([todo.json() for todo in todos]), 200
 
-    except ValueError as e:
-        return jsonify({'error': str(e)}), 400
+    except ValidationError as e:
+        return jsonify({'error': str(e), 'code': 'VALIDATION_ERROR'}), 400
+    except DatabaseError as e:
+        return jsonify({'error': str(e), 'code': 'DATABASE_ERROR'}), 500
+    except Exception as e:
+        return jsonify({'error': 'Internal server error', 'code': 'INTERNAL_ERROR'}), 500
 
 
 @todo_bp.route('/users/<int:user_id>/todos', methods=['POST'])
@@ -56,8 +61,12 @@ def create_todo(user_id):
         
         return jsonify(todo.json()), 201
 
-    except ValueError as e:
-        return jsonify({'error': str(e)}), 400
+    except ValidationError as e:
+        return jsonify({'error': str(e), 'code': 'VALIDATION_ERROR'}), 400
+    except DatabaseError as e:
+        return jsonify({'error': str(e), 'code': 'DATABASE_ERROR'}), 500
+    except Exception as e:
+        return jsonify({'error': 'Internal server error', 'code': 'INTERNAL_ERROR'}), 500
 
 
 @todo_bp.route('/users/<int:user_id>/todos/<int:todo_id>', methods=['PUT'])
@@ -81,8 +90,12 @@ def update_todo(user_id, todo_id):
         
         return jsonify(todo.json()), 200
 
-    except ValueError as e:
-        return jsonify({'error': str(e)}), 400
+    except ValidationError as e:
+        return jsonify({'error': str(e), 'code': 'VALIDATION_ERROR'}), 400
+    except DatabaseError as e:
+        return jsonify({'error': str(e), 'code': 'DATABASE_ERROR'}), 500
+    except Exception as e:
+        return jsonify({'error': 'Internal server error', 'code': 'INTERNAL_ERROR'}), 500
 
 
 @todo_bp.route('/users/<int:user_id>/todos/<int:todo_id>', methods=['DELETE'])
@@ -96,8 +109,12 @@ def delete_todo(user_id, todo_id):
         
         return jsonify({'message': 'Todo deleted successfully'}), 200
 
-    except ValueError as e:
-        return jsonify({'error': str(e)}), 400
+    except ValidationError as e:
+        return jsonify({'error': str(e), 'code': 'VALIDATION_ERROR'}), 400
+    except DatabaseError as e:
+        return jsonify({'error': str(e), 'code': 'DATABASE_ERROR'}), 500
+    except Exception as e:
+        return jsonify({'error': 'Internal server error', 'code': 'INTERNAL_ERROR'}), 500
 
 @todo_bp.route('/users/<int:user_id>/todos/search', methods=['GET'])
 @jwt_required()
@@ -118,5 +135,9 @@ def search_todos(user_id):
             'count': len(todos)
         }), 200
 
-    except ValueError as e:
-        return jsonify({'error': str(e)}), 400
+    except ValidationError as e:
+        return jsonify({'error': str(e), 'code': 'VALIDATION_ERROR'}), 400
+    except DatabaseError as e:
+        return jsonify({'error': str(e), 'code': 'DATABASE_ERROR'}), 500
+    except Exception as e:
+        return jsonify({'error': 'Internal server error', 'code': 'INTERNAL_ERROR'}), 500

@@ -4,6 +4,7 @@ from models.user import User, db
 from services.user_service import UserService
 from validation.user_validation import validate_user_data
 from flask_jwt_extended import create_access_token, jwt_required
+from exceptions import ValidationError, NotFoundError
 from datetime import timedelta
 
 auth_bp = Blueprint('auth', __name__)
@@ -48,8 +49,12 @@ def login():
             }
         }), 200
         
+    except ValidationError as e:
+        return jsonify({'error': str(e), 'code': 'VALIDATION_ERROR'}), 400
+    except NotFoundError as e:
+        return jsonify({'error': str(e), 'code': 'NOT_FOUND'}), 401
     except Exception as e:
-        return jsonify({'error': 'Internal server error'}), 500
+        return jsonify({'error': 'Internal server error', 'code': 'INTERNAL_ERROR'}), 500
 
 @auth_bp.route('/auth/logout', methods=['POST'])
 @jwt_required()

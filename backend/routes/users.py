@@ -4,6 +4,7 @@ from flask_jwt_extended import jwt_required
 from models.user import User, db
 from services.user_service import UserService
 from validation.user_validation import validate_user_data
+from exceptions import ValidationError, NotFoundError, DuplicateError
 
 users_bp = Blueprint('users', __name__)
 
@@ -39,10 +40,12 @@ def create_user():
             }
         }), 201
         
-    except ValueError as e:
-        return jsonify({'error': str(e)}), 400
+    except ValidationError as e:
+        return jsonify({'error': str(e), 'code': 'VALIDATION_ERROR'}), 400
+    except DuplicateError as e:
+        return jsonify({'error': str(e), 'code': 'DUPLICATE_ERROR'}), 409
     except Exception as e:
-        return jsonify({'error': 'Internal server error'}), 500
+        return jsonify({'error': 'Internal server error', 'code': 'INTERNAL_ERROR'}), 500
 
 @users_bp.route('/users', methods=['GET'])
 @jwt_required()
@@ -51,7 +54,7 @@ def get_all_users():
         users = UserService.get_all_users()
         return jsonify(users)
     except Exception as e:
-        return jsonify({'error': 'Internal server error'}), 
+        return jsonify({'error': 'Internal server error'}), 500
 
 @users_bp.route('/users/<int:user_id>', methods=['GET'])
 @jwt_required()
@@ -69,8 +72,12 @@ def get_user_by_id(user_id):
             }
         }), 200
         
+    except ValidationError as e:
+        return jsonify({'error': str(e), 'code': 'VALIDATION_ERROR'}), 400
+    except NotFoundError as e:
+        return jsonify({'error': str(e), 'code': 'NOT_FOUND'}), 404
     except Exception as e:
-        return jsonify({'error': 'Internal server error'}), 500
+        return jsonify({'error': 'Internal server error', 'code': 'INTERNAL_ERROR'}), 500
 
 @users_bp.route('/users/<int:user_id>', methods=['PUT'])
 @jwt_required()
@@ -98,10 +105,14 @@ def update_user(user_id):
             }
         }), 200
         
-    except ValueError as e:
-        return jsonify({'error': str(e)}), 400
+    except ValidationError as e:
+        return jsonify({'error': str(e), 'code': 'VALIDATION_ERROR'}), 400
+    except DuplicateError as e:
+        return jsonify({'error': str(e), 'code': 'DUPLICATE_ERROR'}), 409
+    except NotFoundError as e:
+        return jsonify({'error': str(e), 'code': 'NOT_FOUND'}), 404
     except Exception as e:
-        return jsonify({'error': 'Internal server error'}), 500
+        return jsonify({'error': 'Internal server error', 'code': 'INTERNAL_ERROR'}), 500
 
 @users_bp.route('/users/<int:user_id>', methods=['DELETE'])
 @jwt_required()
@@ -115,7 +126,9 @@ def delete_user(user_id):
         
         return jsonify({'message': 'User deleted successfully'}), 200
         
-    except ValueError as e:
-        return jsonify({'error': str(e)}), 400
+    except ValidationError as e:
+        return jsonify({'error': str(e), 'code': 'VALIDATION_ERROR'}), 400
+    except NotFoundError as e:
+        return jsonify({'error': str(e), 'code': 'NOT_FOUND'}), 404
     except Exception as e:
-        return jsonify({'error': 'Internal server error'}), 500
+        return jsonify({'error': 'Internal server error', 'code': 'INTERNAL_ERROR'}), 500

@@ -3,6 +3,7 @@ from config import config
 from models import db
 from routes import routes_bp
 from flask_jwt_extended import JWTManager
+from exceptions import ValidationError, NotFoundError, DuplicateError, DatabaseError
 
 def create_app(config_name='default'):
     app = Flask(__name__)
@@ -18,15 +19,39 @@ def create_app(config_name='default'):
     app.register_blueprint(routes_bp, url_prefix='/api')
 
     # Error handlers
-    @app.errorhandler(ValueError)
-    def handle_value_error(error):
-        return jsonify({'error': str(error)}), 400
+    @app.errorhandler(ValidationError)
+    def handle_validation_error(error):
+        return jsonify({
+            'error': str(error),
+            'code': error.code
+        }), 400
+
+    @app.errorhandler(DuplicateError)
+    def handle_duplicate_error(error):
+        return jsonify({
+            'error': str(error),
+            'code': error.code
+        }), 409
+
+    @app.errorhandler(NotFoundError)
+    def handle_not_found_error(error):
+        return jsonify({
+            'error': str(error),
+            'code': error.code
+        }), 404
+
+    @app.errorhandler(DatabaseError)
+    def handle_database_error(error):
+        return jsonify({
+            'error': str(error),
+            'code': error.code
+        }), 500
 
     @app.errorhandler(Exception)
     def handle_general_error(error):
         return jsonify({
             'error': 'Internal server error',
-            'details': str(error)
+            'code': 'INTERNAL_ERROR'
         }), 500
 
     return app
