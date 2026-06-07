@@ -14,11 +14,6 @@ def create_app(config_name='default'):
     db.init_app(app)
     JWTManager(app)
 
-    # 🔑 Ensure models are loaded
-    with app.app_context():
-        from models import User, Todo
-        db.create_all()
-
     # Register blueprints
     app.register_blueprint(routes_bp, url_prefix='/api')
 

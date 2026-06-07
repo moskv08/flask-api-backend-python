@@ -40,6 +40,11 @@ To spin up the entire stack (API, Database, etc.) using the provided Compose con
 docker compose up -d
 ```
 
+To stop the stack:
+```bash
+docker compose down
+```
+
 ## 🚀 Project Structure
 - `/backend`: Core API implementation.
 - `/compose.yml`: Multi-container orchestration.
@@ -68,6 +73,7 @@ This directory contains the core logic of the Flask API, following a layered arc
 ## 🗄️ Database Migrations
 We use **Alembic** to manage database schema changes. To generate and apply migrations:
 
+### Local Development Migrations
 1. **Create a new migration:**
    ```bash
    uv run alembic revision --autogenerate -m "description of change"
@@ -76,3 +82,30 @@ We use **Alembic** to manage database schema changes. To generate and apply migr
 2. **Apply migrations:**
    ```bash
    uv run alembic upgrade head
+   ```
+
+### Docker Deployment Migrations
+When deploying with Docker, database migrations are handled automatically:
+
+1. **For local Docker deployment:**
+   ```bash
+   docker compose up -d
+   ```
+
+2. **To run migrations in the Docker container:**
+   ```bash
+   docker compose exec flaskapp uv run alembic upgrade head
+   ```
+
+3. **To create a new migration in Docker:**
+   ```bash
+   docker compose exec flaskapp uv run alembic revision --autogenerate -m "description of change"
+   ```
+
+### Migration Best Practices
+- Always run `alembic revision --autogenerate` before making database schema changes.
+- Migrations should be tested in a development environment before applying to production.
+- When using Docker, ensure the database service is running before executing migration commands.
+
+### Migration Configuration
+The Alembic configuration is located at `alembic.ini` and uses the database URL from your environment variables. The Docker deployment automatically sets the correct `DATABASE_URL` environment variable for the Flask service.
