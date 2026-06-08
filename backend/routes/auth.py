@@ -3,14 +3,11 @@ from flask import Blueprint, request, jsonify
 from models.user import User, db
 from services.user_service import UserService
 from validation.user_validation import validate_user_data
-from flask_jwt_extended import create_access_token, jwt_required
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt
 from exceptions import ValidationError, NotFoundError
 from datetime import timedelta
 
 auth_bp = Blueprint('auth', __name__)
-
-# Token blacklist for logout functionality
-blacklisted_tokens = set()
 
 @auth_bp.route('/auth/login', methods=['POST'])
 def login():
@@ -60,15 +57,22 @@ def login():
 @jwt_required()
 def logout():
     try:
-        # # Get the token from the request
-        # jti = get_raw_jwt()['jti']
+        # Get the token's JTI (JWT ID) and add it to the blocklist
+        jti = get_jwt()['jti']
         
-        # # Add token to blacklist
-        # blacklisted_tokens.add(jti)
+        # Create a new session to ensure clean state
+        from models.token_blocklist import TokenBlocklist
+        token_blocklist_entry = TokenBlocklist(jti=jti)
+        db.session.add(token_blocklist_entry)
+        db.session.commit()
         
         return jsonify({'message': 'Successfully logged out'}), 200
         
     except Exception as e:
+        # Log the error for debugging purposes
+        print(f"Logout error: {e}")
+        try:
+            db.session.rollback()
+        except:
+            pass
         return jsonify({'error': 'Internal server error'}), 500
-
-# You'll also need to configure the JWT manager to check blacklisted tokens

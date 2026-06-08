@@ -8,6 +8,8 @@ description: >
   "I need to fix", "code review said", "I noticed a problem with", "let's tackle", or "how do I
   approach this change". Always produces a written plan for the user to review before any code is
   touched. Works hand-in-hand with the flask-project-guide skill for project-specific guidance.
+  For Behavioral and Breaking changes, the tdd-enforcement skill is mandatory — strict
+  red/green TDD applies to all new or modified functionality. No exceptions.
 ---
 
 # Issue-Driven Development Lifecycle
@@ -41,8 +43,12 @@ Once the problem statement is confirmed, determine:
 
 **Change type** — pick one:
 - 🎨 *Cosmetic* — renames, restructuring, no behavior change (e.g. URL pattern rename)
-- ⚙️ *Behavioral* — logic changes, new/modified functionality
-- 💥 *Breaking* — changes to the API contract, DB schema, or auth flow
+- ⚙️ *Behavioral* — logic changes, new/modified functionality → **TDD mandatory**
+- 💥 *Breaking* — changes to the API contract, DB schema, or auth flow → **TDD mandatory**
+
+> If the change type is ⚙️ or 💥, the tdd-enforcement skill activates. State this clearly
+> when presenting the written plan. The test plan becomes part of Phase 3, and TDD Phases
+> B–D replace the standard Phase 4 implementation flow.
 
 **Scope** — list every layer of the stack that will be touched:
 - Routes (`/routes`)
@@ -103,6 +109,10 @@ Produce a written plan the user will review before touching code. Structure it a
 **Out of scope / deferred:**
 - [Anything explicitly not being done in this pass]
 
+> **If change type is ⚙️ or 💥:** append a **Test plan** section here (see tdd-enforcement
+> skill for the required table format). The test plan is reviewed and confirmed as part of
+> this written plan — before any test or implementation code is written.
+
 ---
 
 After presenting the plan, ask:
@@ -115,10 +125,14 @@ Do not proceed until the user confirms the plan.
 
 ### Phase 4 — Implement
 
-Work through the file list step by step. For each step:
+**🎨 Cosmetic changes:** work through the file list step by step. For each step:
 1. Show the specific change (code snippet or diff-style)
 2. Explain briefly why it's done this way in this stack
 3. Flag if a follow-up step is now required (e.g. "next we update the blueprint registration")
+
+**⚙️ Behavioral / 💥 Breaking changes:** hand off to the tdd-enforcement skill.
+Follow TDD Phases B (red) → C (green) → D (refactor) in strict order.
+Do not write any implementation code until the user confirms tests are red.
 
 Use the flask-project-guide skill for any stack-specific patterns (auth, Alembic, uv commands, etc.)
 

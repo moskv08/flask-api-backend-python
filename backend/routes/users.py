@@ -29,7 +29,6 @@ def create_user():
             return jsonify({'error': 'User with this email already exists'}), 409
         
         user = UserService.create_user(name, email)
-        # Assuming you have a way to save the user to database
         
         return jsonify({
             'message': 'User created successfully',

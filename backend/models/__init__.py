@@ -2,5 +2,6 @@
 from .db import db
 from .user import User
 from .todo import Todo
+from .token_blocklist import TokenBlocklist
 
-__all__ = ['db', 'User', 'Todo'] # Exports the User model for use in other modules
+__all__ = ['db', 'User', 'Todo', 'TokenBlocklist'] # Exports the models for use in other modules

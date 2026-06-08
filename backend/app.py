@@ -1,6 +1,7 @@
 from flask import Flask, jsonify
 from config import config
 from models import db
+from models.token_blocklist import TokenBlocklist
 from routes import routes_bp
 from flask_jwt_extended import JWTManager
 from exceptions import ValidationError, NotFoundError, DuplicateError, DatabaseError
@@ -13,7 +14,15 @@ def create_app(config_name='default'):
 
     # Initialize extensions
     db.init_app(app)
-    JWTManager(app)
+    
+    # Configure JWT Manager with token blocklist loader
+    jwt = JWTManager(app)
+    
+    @jwt.token_in_blocklist_loader
+    def check_if_token_revoked(jwt_header, jwt_payload):
+        jti = jwt_payload['jti']
+        token = db.session.query(TokenBlocklist.id).filter_by(jti=jti).scalar()
+        return token is not None
 
     # Register blueprints
     app.register_blueprint(routes_bp, url_prefix='/api')
