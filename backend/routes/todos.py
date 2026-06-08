@@ -35,8 +35,15 @@ def create_todo(user_id):
         data = request.get_json()
         
         # Validate required fields
-        if not data or 'title' not in data:
-            return jsonify({'error': 'Title is required'}), 400
+        if not data:
+            return jsonify({'error': 'Request body is required'}), 400
+        
+        if 'title' not in data or not data['title'].strip():
+            return jsonify({'error': 'Title is required and cannot be empty'}), 400
+        
+        # Validate title length (prevent DoS attacks)
+        if len(data['title']) > 255:
+            return jsonify({'error': 'Title must be less than 255 characters'}), 400
         
         # Parse due_date if provided
         due_date = None
@@ -125,8 +132,15 @@ def search_todos(user_id):
         
         query = request.args.get('q', '').strip()
         
-        if not query or len(query) < 2:
+        # Validate search query
+        if not query:
+            return jsonify({'error': 'Query parameter is required'}), 400
+        
+        if len(query) < 2:
             return jsonify({'error': 'Query must be at least 2 characters'}), 400
+        
+        if len(query) > 100:
+            return jsonify({'error': 'Query must be less than 100 characters'}), 400
         
         todos = TodoService.search_todos(user_id, query)
         

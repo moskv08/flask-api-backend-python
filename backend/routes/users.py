@@ -23,11 +23,6 @@ def create_user():
         name = result.get('name')
         email = result.get('email')
 
-        # Check for existing user
-        existing_user = User.query.filter_by(email=email).first()
-        if existing_user:
-            return jsonify({'error': 'User with this email already exists'}), 409
-        
         user = UserService.create_user(name, email)
         
         return jsonify({

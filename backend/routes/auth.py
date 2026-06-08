@@ -75,4 +75,4 @@ def logout():
             db.session.rollback()
         except:
             pass
-        return jsonify({'error': 'Internal server error'}), 500
+        return jsonify({'error': 'Internal server error', 'code': 'INTERNAL_ERROR'}), 500
