@@ -5,6 +5,7 @@ from models.token_blocklist import TokenBlocklist
 from routes import routes_bp
 from flask_jwt_extended import JWTManager
 from exceptions import ValidationError, NotFoundError, DuplicateError, DatabaseError
+from logging_config import setup_logging
 
 def create_app(config_name='default'):
     app = Flask(__name__)
@@ -27,9 +28,21 @@ def create_app(config_name='default'):
     # Register blueprints
     app.register_blueprint(routes_bp, url_prefix='/api')
 
+    # Setup structured logging
+    setup_logging(app)
+
     # Error handlers
     @app.errorhandler(ValidationError)
     def handle_validation_error(error):
+        app.logger.error(
+            "Validation error occurred",
+            extra={'extra_data': {
+                'event': 'validation_error',
+                'error_type': 'ValidationError',
+                'message': str(error),
+                'code': error.code
+            }}
+        )
         return jsonify({
             'error': str(error),
             'code': error.code
@@ -37,6 +50,15 @@ def create_app(config_name='default'):
 
     @app.errorhandler(DuplicateError)
     def handle_duplicate_error(error):
+        app.logger.error(
+            "Duplicate error occurred",
+            extra={'extra_data': {
+                'event': 'duplicate_error',
+                'error_type': 'DuplicateError',
+                'message': str(error),
+                'code': error.code
+            }}
+        )
         return jsonify({
             'error': str(error),
             'code': error.code
@@ -44,6 +66,15 @@ def create_app(config_name='default'):
 
     @app.errorhandler(NotFoundError)
     def handle_not_found_error(error):
+        app.logger.error(
+            "Not found error occurred",
+            extra={'extra_data': {
+                'event': 'not_found_error',
+                'error_type': 'NotFoundError',
+                'message': str(error),
+                'code': error.code
+            }}
+        )
         return jsonify({
             'error': str(error),
             'code': error.code
@@ -51,6 +82,15 @@ def create_app(config_name='default'):
 
     @app.errorhandler(DatabaseError)
     def handle_database_error(error):
+        app.logger.error(
+            "Database error occurred",
+            extra={'extra_data': {
+                'event': 'database_error',
+                'error_type': 'DatabaseError',
+                'message': str(error),
+                'code': error.code
+            }}
+        )
         return jsonify({
             'error': str(error),
             'code': error.code
@@ -58,6 +98,16 @@ def create_app(config_name='default'):
 
     @app.errorhandler(Exception)
     def handle_general_error(error):
+        app.logger.error(
+            "General error occurred",
+            extra={'extra_data': {
+                'event': 'general_error',
+                'error_type': 'Exception',
+                'message': 'Internal server error',
+                'code': 'INTERNAL_ERROR'
+            }},
+            exc_info=True
+        )
         return jsonify({
             'error': 'Internal server error',
             'code': 'INTERNAL_ERROR'
