@@ -67,6 +67,28 @@ This directory contains the core logic of the Flask API, following a layered arc
 - `routes/`: Endpoint definitions (e.s., `/users`, `/tasks`).
 - `services/`: Business logic implementation and orchestration.
 - `models/`: SQLAlchemy models and database schema definitions.
+
+## 🔐 Security Configuration
+
+### Secret Key Setup
+The application requires a secure SECRET_KEY to be set as an environment variable. For security reasons, the application will not start if the SECRET_KEY is not properly configured.
+
+**For Development:**
+1. Create a `.env` file in the `backend/` directory
+2. Add your secret key: `SECRET_KEY=your-secure-secret-key-here`
+
+**For Production:**
+Set the SECRET_KEY as an environment variable in your deployment environment:
+```bash
+export SECRET_KEY=your-secure-secret-key-here
+```
+
+**Security Requirements:**
+- The secret key must be at least 32 characters long
+- Use a cryptographically secure random string
+- Never commit the secret key to version control
+- Rotate keys periodically for enhanced security
+- The application will fail to start if SECRET_KEY is not set
 - `validation/`: Pydantic models for request/response integrity.
 - `alembic/`: Database migration scripts managed via Alembic.
 

@@ -6,9 +6,15 @@ load_dotenv()
 
 class Config:
     """Base configuration class"""
-    SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-secret-key'
+    SECRET_KEY = os.environ.get('SECRET_KEY')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     CORS_HEADERS = 'Content-Type'
+    
+    @classmethod
+    def validate_config(cls):
+        """Validate that required configuration is present"""
+        if not cls.SECRET_KEY:
+            raise ValueError("SECRET_KEY environment variable is required but not set")
 
 class DevelopmentConfig(Config):
     """Development configuration"""
@@ -32,3 +38,10 @@ config = {
     'testing': TestingConfig,
     'default': DevelopmentConfig
 }
+
+# Validate configuration on import
+try:
+    Config.validate_config()
+except ValueError as e:
+    print(f"Configuration Error: {e}")
+    raise
