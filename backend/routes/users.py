@@ -7,6 +7,7 @@ from validation.user_validation import validate_user_data
 from exceptions import ValidationError, NotFoundError, DuplicateError
 import logging
 from utils.response_formatter import format_success, format_error
+from utils.auth_utils import require_owner_or_admin
 
 users_bp = Blueprint('users', __name__)
 logger = logging.getLogger(__name__)
@@ -118,6 +119,9 @@ def get_all_users():
 @jwt_required()
 def get_user_by_id(user_id):
     try:
+        # Check authorization - user must be the owner of the resource
+        require_owner_or_admin('user_id', user_id)
+        
         logger.info(
             "Fetching user by ID",
             extra={'extra_data': {
@@ -185,6 +189,9 @@ def get_user_by_id(user_id):
 @jwt_required()
 def update_user(user_id):
     try:
+        # Check authorization - user must be the owner of the resource
+        require_owner_or_admin('user_id', user_id)
+        
         logger.info(
             "Updating user",
             extra={'extra_data': {
@@ -290,6 +297,9 @@ def update_user(user_id):
 @jwt_required()
 def delete_user(user_id):
     try:
+        # Check authorization - user must be the owner of the resource
+        require_owner_or_admin('user_id', user_id)
+        
         logger.info(
             "Deleting user",
             extra={'extra_data': {

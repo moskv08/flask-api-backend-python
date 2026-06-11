@@ -5,6 +5,7 @@ from services.user_service import UserService
 from exceptions import ValidationError, NotFoundError, DatabaseError
 from datetime import datetime
 from utils.response_formatter import format_success, format_error
+from utils.auth_utils import require_owner_or_admin
 
 todo_bp = Blueprint('todos', __name__)
 
@@ -13,6 +14,9 @@ todo_bp = Blueprint('todos', __name__)
 def get_user_todos(user_id):
     """Get all todos for a specific user"""
     try:
+        # Check authorization - user must be the owner of the resource
+        require_owner_or_admin('user_id', user_id)
+        
         UserService.get_user_by_id(user_id)
 
         todos = TodoService.get_todos_by_user(user_id)
@@ -34,6 +38,9 @@ def get_user_todos(user_id):
 def create_todo(user_id):
     """Create a new todo for a specific user"""
     try:
+        # Check authorization - user must be the owner of the resource
+        require_owner_or_admin('user_id', user_id)
+        
         UserService.get_user_by_id(user_id)
 
         data = request.get_json()
@@ -89,6 +96,9 @@ def create_todo(user_id):
 def update_todo(user_id, todo_id):
     """Update a specific todo"""
     try:
+        # Check authorization - user must be the owner of the resource
+        require_owner_or_admin('user_id', user_id)
+        
         UserService.get_user_by_id(user_id)
 
         data = request.get_json()
@@ -122,6 +132,9 @@ def update_todo(user_id, todo_id):
 def delete_todo(user_id, todo_id):
     """Delete a specific todo"""
     try:
+        # Check authorization - user must be the owner of the resource
+        require_owner_or_admin('user_id', user_id)
+        
         UserService.get_user_by_id(user_id)
 
         TodoService.delete_todo(todo_id, user_id)
@@ -143,6 +156,9 @@ def delete_todo(user_id, todo_id):
 def search_todos(user_id):
     """Search todos for a specific user"""
     try:
+        # Check authorization - user must be the owner of the resource
+        require_owner_or_admin('user_id', user_id)
+        
         UserService.get_user_by_id(user_id)
         
         query = request.args.get('q', '').strip()
