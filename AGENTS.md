@@ -61,7 +61,7 @@ To run without Docker (development):
 3. Run `uv run flask run` to start the Flask app
 
 Testing approach:
-- No explicit test files found, but the structure supports unit testing of services and models
+- The project structure supports unit testing but no actual test files are present
 - Authentication is handled via JWT tokens (flask-jwt-extended)
 
 Development environment setup:
@@ -69,6 +69,50 @@ Development environment setup:
 - Uses uv for fast Python dependency management
 - Follows layered architecture pattern
 
-Lint and format commands:
-- No explicit linting/formatting configuration found in the project
-- The codebase appears to follow Python standards but no specific linter is configured
+## Key Implementation Details
+
+### Authentication and Security
+- JWT-based authentication with token blocklist functionality in `/backend/models/token_blocklist.py`
+- Password handling is not yet properly implemented (plain text passwords in auth route - needs fixing)
+- Logout functionality requires proper token blacklisting implementation
+
+### Database and Migrations
+- SQLAlchemy models in `/backend/models/` with proper relationships
+- Alembic database migrations in `/backend/alembic/`
+- Indexes on frequently queried columns (user_id) should be added for performance
+- Session management with proper transaction handling and rollback
+
+### Testing
+- No actual test files present in the codebase (though structure suggests testing patterns exist)
+- Test infrastructure needs to be implemented for services and routes
+- Authentication and user creation endpoints have critical logic issues that need testing
+
+### API Design
+- RESTful conventions with proper HTTP methods and status codes
+- Consistent URL naming patterns (/users, /users/{id}/todos)
+- Standardized error response format with proper HTTP status codes
+- Input validation using Marshmallow in some routes and manual checks in others
+
+### Environment Configuration
+- Environment-based configuration for secrets (SECRET_KEY, DATABASE_URL)
+- Support for development, production, and testing environments
+- Configuration loading in `backend/app.py` using `config.py`
+
+## Important Commands and Workflow
+
+### Running the Application
+- `docker compose up -d` to start all services
+- `uv sync` in `/backend` to install dependencies for local development  
+- `uv run flask run` in `/backend` to start the Flask dev server
+
+### Database Operations
+- Use `alembic` commands in `/backend` directory for database migrations:
+  - `alembic revision --autogenerate -m "Migration message"` to create new migrations
+  - `alembic upgrade head` to apply migrations
+
+### Development Guidelines
+1. Follow the layered architecture pattern (routes → services → models)
+2. All database operations must use proper session handling with commit/rollback
+3. Error handling should consistently use custom exceptions from `/backend/exceptions.py`
+4. JWT authentication decorators must be applied to protected routes
+5. Logging should use the structured logging configuration in `/backend/logging_config.py`
