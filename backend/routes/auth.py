@@ -7,6 +7,7 @@ from flask_jwt_extended import create_access_token, jwt_required, get_jwt
 from exceptions import ValidationError, NotFoundError
 from datetime import timedelta
 import logging
+from utils.response_formatter import format_success, format_error
 
 auth_bp = Blueprint('auth', __name__)
 logger = logging.getLogger(__name__)
@@ -25,7 +26,7 @@ def login():
                     'reason': 'missing_credentials'
                 }}
             )
-            return jsonify({'error': 'Email and password required'}), 400
+            return jsonify(format_error('Email and password required', 'VALIDATION_ERROR', 400)), 400
             
         email = data['email']
         password = data['password']
@@ -41,7 +42,7 @@ def login():
                     'email': email
                 }}
             )
-            return jsonify({'error': 'Invalid credentials'}), 401
+            return jsonify(format_error('Invalid credentials', 'INVALID_CREDENTIALS', 401)), 401
             
         # Verify password (assuming you have a method to verify passwords)
         # For demonstration, we'll assume password is stored in plain text
@@ -62,15 +63,18 @@ def login():
             }}
         )
         
-        return jsonify({
-            'message': 'Login successful',
-            'access_token': access_token,
-            'user': {
-                'id': user.id,
-                'name': user.name,
-                'email': user.email
-            }
-        }), 200
+        return jsonify(format_success(
+            data={
+                'access_token': access_token,
+                'user': {
+                    'id': user.id,
+                    'name': user.name,
+                    'email': user.email
+                }
+            },
+            message='Login successful',
+            status_code=200
+        )), 200
         
     except ValidationError as e:
         logger.error(
@@ -82,7 +86,7 @@ def login():
                 'code': 'VALIDATION_ERROR'
             }}
         )
-        return jsonify({'error': str(e), 'code': 'VALIDATION_ERROR'}), 400
+        return jsonify(format_error(str(e), 'VALIDATION_ERROR', 400)), 400
     except NotFoundError as e:
         logger.error(
             "Login not found error",
@@ -93,7 +97,7 @@ def login():
                 'code': 'NOT_FOUND'
             }}
         )
-        return jsonify({'error': str(e), 'code': 'NOT_FOUND'}), 401
+        return jsonify(format_error(str(e), 'NOT_FOUND', 401)), 401
     except Exception as e:
         logger.error(
             "Login general error",
@@ -105,7 +109,7 @@ def login():
             }},
             exc_info=True
         )
-        return jsonify({'error': 'Internal server error', 'code': 'INTERNAL_ERROR'}), 500
+        return jsonify(format_error('Internal server error', 'INTERNAL_ERROR', 500)), 500
 
 @auth_bp.route('/auth/logout', methods=['POST'])
 @jwt_required()
@@ -128,7 +132,10 @@ def logout():
             }}
         )
         
-        return jsonify({'message': 'Successfully logged out'}), 200
+        return jsonify(format_success(
+            message='Successfully logged out',
+            status_code=200
+        )), 200
         
     except Exception as e:
         # Log the error for debugging purposes
@@ -146,4 +153,4 @@ def logout():
             db.session.rollback()
         except:
             pass
-        return jsonify({'error': 'Internal server error', 'code': 'INTERNAL_ERROR'}), 500
+        return jsonify(format_error('Internal server error', 'INTERNAL_ERROR', 500)), 500

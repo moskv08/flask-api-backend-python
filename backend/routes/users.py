@@ -6,6 +6,7 @@ from services.user_service import UserService
 from validation.user_validation import validate_user_data
 from exceptions import ValidationError, NotFoundError, DuplicateError
 import logging
+from utils.response_formatter import format_success, format_error
 
 users_bp = Blueprint('users', __name__)
 logger = logging.getLogger(__name__)
@@ -27,7 +28,7 @@ def create_user():
                     'details': result
                 }}
             )
-            return jsonify({'error': 'Validation failed', 'details': result}), 400
+            return jsonify(format_error('Validation failed', 'VALIDATION_ERROR', 400)), 400
     
         name = result.get('name')
         email = result.get('email')
@@ -44,14 +45,15 @@ def create_user():
             }}
         )
         
-        return jsonify({
-            'message': 'User created successfully',
-            'user': {
+        return jsonify(format_success(
+            data={
                 'id': user.id,
                 'name': user.name,
                 'email': user.email
-            }
-        }), 201
+            },
+            message='User created successfully',
+            status_code=201
+        )), 201
         
     except ValidationError as e:
         logger.error(
@@ -63,7 +65,7 @@ def create_user():
                 'code': 'VALIDATION_ERROR'
             }}
         )
-        return jsonify({'error': str(e), 'code': 'VALIDATION_ERROR'}), 400
+        return jsonify(format_error(str(e), 'VALIDATION_ERROR', 400)), 400
     except DuplicateError as e:
         logger.error(
             "User creation duplicate error",
@@ -74,7 +76,7 @@ def create_user():
                 'code': 'DUPLICATE_ERROR'
             }}
         )
-        return jsonify({'error': str(e), 'code': 'DUPLICATE_ERROR'}), 409
+        return jsonify(format_error(str(e), 'DUPLICATE_ERROR', 409)), 409
     except Exception as e:
         logger.error(
             "User creation general error",
@@ -86,7 +88,7 @@ def create_user():
             }},
             exc_info=True
         )
-        return jsonify({'error': 'Internal server error', 'code': 'INTERNAL_ERROR'}), 500
+        return jsonify(format_error('Internal server error', 'INTERNAL_ERROR', 500)), 500
 
 @users_bp.route('/users', methods=['GET'])
 @jwt_required()
@@ -99,7 +101,7 @@ def get_all_users():
             }}
         )
         users = UserService.get_all_users()
-        return jsonify(users)
+        return jsonify(format_success(data=users, message='Users retrieved successfully')), 200
     except Exception as e:
         logger.error(
             "Get all users general error",
@@ -110,7 +112,7 @@ def get_all_users():
             }},
             exc_info=True
         )
-        return jsonify({'error': 'Internal server error'}), 500
+        return jsonify(format_error('Internal server error', 'INTERNAL_ERROR', 500)), 500
 
 @users_bp.route('/users/<int:user_id>', methods=['GET'])
 @jwt_required()
@@ -132,15 +134,17 @@ def get_user_by_id(user_id):
                     'user_id': user_id
                 }}
             )
-            return jsonify({'error': 'User not found'}), 404
+            return jsonify(format_error('User not found', 'NOT_FOUND', 404)), 404
             
-        return jsonify({
-            'user': {
+        return jsonify(format_success(
+            data={
                 'id': user.id,
                 'name': user.name,
                 'email': user.email
-            }
-        }), 200
+            },
+            message='User retrieved successfully',
+            status_code=200
+        )), 200
         
     except ValidationError as e:
         logger.error(
@@ -152,7 +156,7 @@ def get_user_by_id(user_id):
                 'code': 'VALIDATION_ERROR'
             }}
         )
-        return jsonify({'error': str(e), 'code': 'VALIDATION_ERROR'}), 400
+        return jsonify(format_error(str(e), 'VALIDATION_ERROR', 400)), 400
     except NotFoundError as e:
         logger.error(
             "Get user by ID not found error",
@@ -163,7 +167,7 @@ def get_user_by_id(user_id):
                 'code': 'NOT_FOUND'
             }}
         )
-        return jsonify({'error': str(e), 'code': 'NOT_FOUND'}), 404
+        return jsonify(format_error(str(e), 'NOT_FOUND', 404)), 404
     except Exception as e:
         logger.error(
             "Get user by ID general error",
@@ -175,7 +179,7 @@ def get_user_by_id(user_id):
             }},
             exc_info=True
         )
-        return jsonify({'error': 'Internal server error', 'code': 'INTERNAL_ERROR'}), 500
+        return jsonify(format_error('Internal server error', 'INTERNAL_ERROR', 500)), 500
 
 @users_bp.route('/users/<int:user_id>', methods=['PUT'])
 @jwt_required()
@@ -197,7 +201,7 @@ def update_user(user_id):
                     'user_id': user_id
                 }}
             )
-            return jsonify({'error': 'User not found'}), 404
+            return jsonify(format_error('User not found', 'NOT_FOUND', 404)), 404
             
         data = request.get_json()
         
@@ -212,7 +216,7 @@ def update_user(user_id):
                     'details': result
                 }}
             )
-            return jsonify({'error': 'Validation failed', 'details': result}), 400
+            return jsonify(format_error('Validation failed', 'VALIDATION_ERROR', 400)), 400
             
         updated_user = UserService.update_user(user, data)
         
@@ -226,14 +230,15 @@ def update_user(user_id):
             }}
         )
         
-        return jsonify({
-            'message': 'User updated successfully',
-            'user': {
+        return jsonify(format_success(
+            data={
                 'id': updated_user.id,
                 'name': updated_user.name,
                 'email': updated_user.email
-            }
-        }), 200
+            },
+            message='User updated successfully',
+            status_code=200
+        )), 200
         
     except ValidationError as e:
         logger.error(
@@ -245,7 +250,7 @@ def update_user(user_id):
                 'code': 'VALIDATION_ERROR'
             }}
         )
-        return jsonify({'error': str(e), 'code': 'VALIDATION_ERROR'}), 400
+        return jsonify(format_error(str(e), 'VALIDATION_ERROR', 400)), 400
     except DuplicateError as e:
         logger.error(
             "User update duplicate error",
@@ -256,7 +261,7 @@ def update_user(user_id):
                 'code': 'DUPLICATE_ERROR'
             }}
         )
-        return jsonify({'error': str(e), 'code': 'DUPLICATE_ERROR'}), 409
+        return jsonify(format_error(str(e), 'DUPLICATE_ERROR', 409)), 409
     except NotFoundError as e:
         logger.error(
             "User update not found error",
@@ -267,7 +272,7 @@ def update_user(user_id):
                 'code': 'NOT_FOUND'
             }}
         )
-        return jsonify({'error': str(e), 'code': 'NOT_FOUND'}), 404
+        return jsonify(format_error(str(e), 'NOT_FOUND', 404)), 404
     except Exception as e:
         logger.error(
             "User update general error",
@@ -279,7 +284,7 @@ def update_user(user_id):
             }},
             exc_info=True
         )
-        return jsonify({'error': 'Internal server error', 'code': 'INTERNAL_ERROR'}), 500
+        return jsonify(format_error('Internal server error', 'INTERNAL_ERROR', 500)), 500
 
 @users_bp.route('/users/<int:user_id>', methods=['DELETE'])
 @jwt_required()
@@ -301,7 +306,7 @@ def delete_user(user_id):
                     'user_id': user_id
                 }}
             )
-            return jsonify({'error': 'User not found'}), 404
+            return jsonify(format_error('User not found', 'NOT_FOUND', 404)), 404
             
         UserService.delete_user(user)
         
@@ -313,7 +318,10 @@ def delete_user(user_id):
             }}
         )
         
-        return jsonify({'message': 'User deleted successfully'}), 200
+        return jsonify(format_success(
+            message='User deleted successfully',
+            status_code=200
+        )), 200
         
     except ValidationError as e:
         logger.error(
@@ -325,7 +333,7 @@ def delete_user(user_id):
                 'code': 'VALIDATION_ERROR'
             }}
         )
-        return jsonify({'error': str(e), 'code': 'VALIDATION_ERROR'}), 400
+        return jsonify(format_error(str(e), 'VALIDATION_ERROR', 400)), 400
     except NotFoundError as e:
         logger.error(
             "User delete not found error",
@@ -336,7 +344,7 @@ def delete_user(user_id):
                 'code': 'NOT_FOUND'
             }}
         )
-        return jsonify({'error': str(e), 'code': 'NOT_FOUND'}), 404
+        return jsonify(format_error(str(e), 'NOT_FOUND', 404)), 404
     except Exception as e:
         logger.error(
             "User delete general error",
@@ -348,4 +356,4 @@ def delete_user(user_id):
             }},
             exc_info=True
         )
-        return jsonify({'error': 'Internal server error', 'code': 'INTERNAL_ERROR'}), 500
+        return jsonify(format_error('Internal server error', 'INTERNAL_ERROR', 500)), 500

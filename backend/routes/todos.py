@@ -4,6 +4,7 @@ from services.todo_service import TodoService
 from services.user_service import UserService
 from exceptions import ValidationError, NotFoundError, DatabaseError
 from datetime import datetime
+from utils.response_formatter import format_success, format_error
 
 todo_bp = Blueprint('todos', __name__)
 
@@ -15,14 +16,17 @@ def get_user_todos(user_id):
         UserService.get_user_by_id(user_id)
 
         todos = TodoService.get_todos_by_user(user_id)
-        return jsonify([todo.json() for todo in todos]), 200
+        return jsonify(format_success(
+            data=[todo.json() for todo in todos],
+            message='Todos retrieved successfully'
+        )), 200
 
     except ValidationError as e:
-        return jsonify({'error': str(e), 'code': 'VALIDATION_ERROR'}), 400
+        return jsonify(format_error(str(e), 'VALIDATION_ERROR', 400)), 400
     except DatabaseError as e:
-        return jsonify({'error': str(e), 'code': 'DATABASE_ERROR'}), 500
+        return jsonify(format_error(str(e), 'DATABASE_ERROR', 500)), 500
     except Exception as e:
-        return jsonify({'error': 'Internal server error', 'code': 'INTERNAL_ERROR'}), 500
+        return jsonify(format_error('Internal server error', 'INTERNAL_ERROR', 500)), 500
 
 
 @todo_bp.route('/users/<int:user_id>/todos', methods=['POST'])
@@ -36,14 +40,14 @@ def create_todo(user_id):
         
         # Validate required fields
         if not data:
-            return jsonify({'error': 'Request body is required'}), 400
+            return jsonify(format_error('Request body is required', 'VALIDATION_ERROR', 400)), 400
         
         if 'title' not in data or not data['title'].strip():
-            return jsonify({'error': 'Title is required and cannot be empty'}), 400
+            return jsonify(format_error('Title is required and cannot be empty', 'VALIDATION_ERROR', 400)), 400
         
         # Validate title length (prevent DoS attacks)
         if len(data['title']) > 255:
-            return jsonify({'error': 'Title must be less than 255 characters'}), 400
+            return jsonify(format_error('Title must be less than 255 characters', 'VALIDATION_ERROR', 400)), 400
         
         # Parse due_date if provided
         due_date = None
@@ -51,12 +55,12 @@ def create_todo(user_id):
             try:
                 due_date = datetime.fromisoformat(data['due_date'])
             except ValueError:
-                return jsonify({'error': 'Invalid date format. Use ISO format'}), 400
+                return jsonify(format_error('Invalid date format. Use ISO format', 'VALIDATION_ERROR', 400)), 400
         
         # Validate priority
         priority = data.get('priority', 'medium').lower()
         if priority not in ['low', 'medium', 'high']:
-            return jsonify({'error': 'Priority must be low, medium, or high'}), 400
+            return jsonify(format_error('Priority must be low, medium, or high', 'VALIDATION_ERROR', 400)), 400
         
         todo = TodoService.create_todo(
             title=data['title'],
@@ -66,14 +70,18 @@ def create_todo(user_id):
             priority=priority
         )
         
-        return jsonify(todo.json()), 201
+        return jsonify(format_success(
+            data=todo.json(),
+            message='Todo created successfully',
+            status_code=201
+        )), 201
 
     except ValidationError as e:
-        return jsonify({'error': str(e), 'code': 'VALIDATION_ERROR'}), 400
+        return jsonify(format_error(str(e), 'VALIDATION_ERROR', 400)), 400
     except DatabaseError as e:
-        return jsonify({'error': str(e), 'code': 'DATABASE_ERROR'}), 500
+        return jsonify(format_error(str(e), 'DATABASE_ERROR', 500)), 500
     except Exception as e:
-        return jsonify({'error': 'Internal server error', 'code': 'INTERNAL_ERROR'}), 500
+        return jsonify(format_error('Internal server error', 'INTERNAL_ERROR', 500)), 500
 
 
 @todo_bp.route('/users/<int:user_id>/todos/<int:todo_id>', methods=['PUT'])
@@ -91,18 +99,22 @@ def update_todo(user_id, todo_id):
                 due_date = datetime.fromisoformat(data['due_date'])
                 data['due_date'] = due_date
             except ValueError:
-                return jsonify({'error': 'Invalid date format. Use ISO format'}), 400
+                return jsonify(format_error('Invalid date format. Use ISO format', 'VALIDATION_ERROR', 400)), 400
         
         todo = TodoService.update_todo(todo_id, user_id, data)
         
-        return jsonify(todo.json()), 200
+        return jsonify(format_success(
+            data=todo.json(),
+            message='Todo updated successfully',
+            status_code=200
+        )), 200
 
     except ValidationError as e:
-        return jsonify({'error': str(e), 'code': 'VALIDATION_ERROR'}), 400
+        return jsonify(format_error(str(e), 'VALIDATION_ERROR', 400)), 400
     except DatabaseError as e:
-        return jsonify({'error': str(e), 'code': 'DATABASE_ERROR'}), 500
+        return jsonify(format_error(str(e), 'DATABASE_ERROR', 500)), 500
     except Exception as e:
-        return jsonify({'error': 'Internal server error', 'code': 'INTERNAL_ERROR'}), 500
+        return jsonify(format_error('Internal server error', 'INTERNAL_ERROR', 500)), 500
 
 
 @todo_bp.route('/users/<int:user_id>/todos/<int:todo_id>', methods=['DELETE'])
@@ -114,14 +126,17 @@ def delete_todo(user_id, todo_id):
 
         TodoService.delete_todo(todo_id, user_id)
         
-        return jsonify({'message': 'Todo deleted successfully'}), 200
+        return jsonify(format_success(
+            message='Todo deleted successfully',
+            status_code=200
+        )), 200
 
     except ValidationError as e:
-        return jsonify({'error': str(e), 'code': 'VALIDATION_ERROR'}), 400
+        return jsonify(format_error(str(e), 'VALIDATION_ERROR', 400)), 400
     except DatabaseError as e:
-        return jsonify({'error': str(e), 'code': 'DATABASE_ERROR'}), 500
+        return jsonify(format_error(str(e), 'DATABASE_ERROR', 500)), 500
     except Exception as e:
-        return jsonify({'error': 'Internal server error', 'code': 'INTERNAL_ERROR'}), 500
+        return jsonify(format_error('Internal server error', 'INTERNAL_ERROR', 500)), 500
 
 @todo_bp.route('/users/<int:user_id>/todos/search', methods=['GET'])
 @jwt_required()
@@ -134,24 +149,28 @@ def search_todos(user_id):
         
         # Validate search query
         if not query:
-            return jsonify({'error': 'Query parameter is required'}), 400
+            return jsonify(format_error('Query parameter is required', 'VALIDATION_ERROR', 400)), 400
         
         if len(query) < 2:
-            return jsonify({'error': 'Query must be at least 2 characters'}), 400
+            return jsonify(format_error('Query must be at least 2 characters', 'VALIDATION_ERROR', 400)), 400
         
         if len(query) > 100:
-            return jsonify({'error': 'Query must be less than 100 characters'}), 400
+            return jsonify(format_error('Query must be less than 100 characters', 'VALIDATION_ERROR', 400)), 400
         
         todos = TodoService.search_todos(user_id, query)
         
-        return jsonify({
-            'todos': [todo.json() for todo in todos],
-            'count': len(todos)
-        }), 200
+        return jsonify(format_success(
+            data={
+                'todos': [todo.json() for todo in todos],
+                'count': len(todos)
+            },
+            message='Todos search results',
+            status_code=200
+        )), 200
 
     except ValidationError as e:
-        return jsonify({'error': str(e), 'code': 'VALIDATION_ERROR'}), 400
+        return jsonify(format_error(str(e), 'VALIDATION_ERROR', 400)), 400
     except DatabaseError as e:
-        return jsonify({'error': str(e), 'code': 'DATABASE_ERROR'}), 500
+        return jsonify(format_error(str(e), 'DATABASE_ERROR', 500)), 500
     except Exception as e:
-        return jsonify({'error': 'Internal server error', 'code': 'INTERNAL_ERROR'}), 500
+        return jsonify(format_error('Internal server error', 'INTERNAL_ERROR', 500)), 500
