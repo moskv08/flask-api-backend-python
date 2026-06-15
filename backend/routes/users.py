@@ -3,10 +3,10 @@ from flask import Blueprint, request, jsonify, g
 from flask_jwt_extended import jwt_required
 from models.user import User, db
 from services.user_service import UserService
-from validation.user_validation import validate_user_data
+from validation.user_validation import validate_user_data, validate_password
 from exceptions import ValidationError, NotFoundError, DuplicateError
 import logging
-from utils.response_formatter import format_success, format_error
+from utils.response_formatter import format_success, format_error, format_validation_error
 from utils.auth_utils import require_owner_or_admin
 
 users_bp = Blueprint('users', __name__)
@@ -29,7 +29,7 @@ def create_user():
                     'details': result
                 }}
             )
-            return jsonify(format_error('Validation failed', 'VALIDATION_ERROR', 400)), 400
+            return jsonify(format_validation_error(result, 400)), 400
     
         name = result.get('name')
         email = result.get('email')
@@ -223,7 +223,7 @@ def update_user(user_id):
                     'details': result
                 }}
             )
-            return jsonify(format_error('Validation failed', 'VALIDATION_ERROR', 400)), 400
+            return jsonify(format_validation_error(result, 400)), 400
             
         updated_user = UserService.update_user(user, data)
         

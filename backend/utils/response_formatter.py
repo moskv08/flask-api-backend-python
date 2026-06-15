@@ -48,3 +48,17 @@ def format_error(message, code=None, status_code=500):
     
     # Remove None values to keep response clean
     return {k: v for k, v in response.items() if v is not None}
+
+
+def format_validation_error(messages, status_code=400):
+    """
+    Format a validation error response.
+    
+    Args:
+        messages: Validation error messages
+        status_code: HTTP status code (default 400)
+    
+    Returns:
+        JSON response with standardized format
+    """
+    return format_error(messages, 'VALIDATION_ERROR', status_code)

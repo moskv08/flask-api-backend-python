@@ -4,7 +4,7 @@ from services.todo_service import TodoService
 from services.user_service import UserService
 from exceptions import ValidationError, NotFoundError, DatabaseError
 from datetime import datetime
-from utils.response_formatter import format_success, format_error
+from utils.response_formatter import format_success, format_error, format_validation_error
 from utils.auth_utils import require_owner_or_admin
 
 todo_bp = Blueprint('todos', __name__)

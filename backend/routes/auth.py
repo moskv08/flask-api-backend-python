@@ -2,12 +2,13 @@
 from flask import Blueprint, request, jsonify, g
 from models.user import User, db
 from services.user_service import UserService
-from validation.user_validation import validate_user_data
+from validation.user_validation import validate_user_data, validate_password
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt
 from exceptions import ValidationError, NotFoundError
 from datetime import timedelta
 import logging
 from utils.response_formatter import format_success, format_error
+import bcrypt
 
 auth_bp = Blueprint('auth', __name__)
 logger = logging.getLogger(__name__)
@@ -44,10 +45,18 @@ def login():
             )
             return jsonify(format_error('Invalid credentials', 'INVALID_CREDENTIALS', 401)), 401
             
-        # Verify password (assuming you have a method to verify passwords)
-        # For demonstration, we'll assume password is stored in plain text
-        # In production, use proper password hashing
-        
+        # Verify password using bcrypt
+        if not bcrypt.checkpw(password.encode('utf-8'), user.password_hash):
+            logger.info(
+                "Login failed - invalid credentials",
+                extra={'extra_data': {
+                    'event': 'login_failed',
+                    'reason': 'invalid_credentials',
+                    'email': email
+                }}
+            )
+            return jsonify(format_error('Invalid credentials', 'INVALID_CREDENTIALS', 401)), 401
+            
         # Create access token
         access_token = create_access_token(
             identity=str(user.id),
