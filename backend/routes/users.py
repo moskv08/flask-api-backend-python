@@ -8,6 +8,7 @@ from exceptions import ValidationError, NotFoundError, DuplicateError
 import logging
 from utils.response_formatter import format_success, format_error, format_validation_error
 from utils.auth_utils import require_owner_or_admin
+from werkzeug.security import generate_password_hash
 
 users_bp = Blueprint('users', __name__)
 logger = logging.getLogger(__name__)
