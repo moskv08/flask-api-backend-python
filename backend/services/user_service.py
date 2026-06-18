@@ -2,6 +2,7 @@
 from models.user import User,db
 from exceptions import ValidationError, DuplicateError, DatabaseError
 import logging
+from werkzeug.security import generate_password_hash
 
 logger = logging.getLogger(__name__)
 
@@ -60,7 +61,9 @@ class UserService:
             )
             raise DuplicateError('User with this name or email already exists')
         
-        new_user = User(name=name, email=email)
+        # Create user with hashed password (empty string as placeholder)
+        # This will be updated in the signup flow when password is provided
+        new_user = User(name=name, email=email, password_hash=generate_password_hash(''))
         db.session.add(new_user)
         try:
             db.session.commit()
