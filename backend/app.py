@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request, g
 from config import config
 from models import db
 from models.token_blocklist import TokenBlocklist
@@ -6,6 +6,7 @@ from routes import routes_bp
 from flask_jwt_extended import JWTManager
 from exceptions import ValidationError, NotFoundError, DuplicateError, DatabaseError
 from logging_config import setup_logging
+import logging
 
 def create_app(config_name='default'):
     app = Flask(__name__)
@@ -31,10 +32,45 @@ def create_app(config_name='default'):
     # Setup structured logging
     setup_logging(app)
 
-    # Error handlers
+    # Request logging middleware - simplified approach to avoid circular imports
+    @app.before_request
+    def log_request_start():
+        # Log basic request info at the beginning of each request
+        if request.method and request.url:
+            logger = logging.getLogger(__name__)
+            logger.info(
+                "Request started",
+                extra={'extra_data': {
+                    'event': 'request_start',
+                    'method': request.method,
+                    'url': request.url,
+                    'user_agent': getattr(request, 'user_agent', None),
+                    'remote_addr': getattr(request, 'remote_addr', None)
+                }}
+            )
+
+    @app.after_request
+    def log_request_end(response):
+        # Log basic request info at the end of each request
+        if hasattr(request, 'method') and hasattr(request, 'url'):
+            logger = logging.getLogger(__name__)
+            logger.info(
+                "Request completed",
+                extra={'extra_data': {
+                    'event': 'request_end',
+                    'method': request.method,
+                    'url': request.url,
+                    'status_code': response.status_code
+                }}
+            )
+        return response
+
+    # Error handlers - using consistent error response format
     @app.errorhandler(ValidationError)
     def handle_validation_error(error):
-        app.logger.error(
+        # Log the error with structured logging
+        logger = logging.getLogger(__name__)
+        logger.error(
             "Validation error occurred",
             extra={'extra_data': {
                 'event': 'validation_error',
@@ -50,7 +86,9 @@ def create_app(config_name='default'):
 
     @app.errorhandler(DuplicateError)
     def handle_duplicate_error(error):
-        app.logger.error(
+        # Log the error with structured logging
+        logger = logging.getLogger(__name__)
+        logger.error(
             "Duplicate error occurred",
             extra={'extra_data': {
                 'event': 'duplicate_error',
@@ -66,7 +104,9 @@ def create_app(config_name='default'):
 
     @app.errorhandler(NotFoundError)
     def handle_not_found_error(error):
-        app.logger.error(
+        # Log the error with structured logging
+        logger = logging.getLogger(__name__)
+        logger.error(
             "Not found error occurred",
             extra={'extra_data': {
                 'event': 'not_found_error',
@@ -82,7 +122,9 @@ def create_app(config_name='default'):
 
     @app.errorhandler(DatabaseError)
     def handle_database_error(error):
-        app.logger.error(
+        # Log the error with structured logging
+        logger = logging.getLogger(__name__)
+        logger.error(
             "Database error occurred",
             extra={'extra_data': {
                 'event': 'database_error',
@@ -98,7 +140,9 @@ def create_app(config_name='default'):
 
     @app.errorhandler(Exception)
     def handle_general_error(error):
-        app.logger.error(
+        # Log the error with structured logging
+        logger = logging.getLogger(__name__)
+        logger.error(
             "General error occurred",
             extra={'extra_data': {
                 'event': 'general_error',
