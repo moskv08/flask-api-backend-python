@@ -99,3 +99,21 @@ When called with a specific area (e.g. `/review security`), do the following:
 **`quality`** — any Python file; look for duplication, naming, dead code, TODOs  
 **`tests`** — `tests/` folder, fixture setup, coverage gaps  
 **`deps`** — `pyproject.toml`, `uv.lock`, installed packages  
+
+## Saving the review
+
+After generating the review, **always** save it to disk:
+
+1. Derive a slug from the area reviewed:
+  - For a **focused review**: use the area name directly (e.g. `security`, `db`, `api`)
+  - For a **full review**: use `full`
+  - Append a short context suffix if the invocation included extra description, joined by underscores
+  - Examples: `security_review`, `full_review`, `db_review`
+
+2. Write the full review output to:
+  > /analysis/{slug}_review.md
+
+3. Confirm to the user:
+  > Review saved → /analysis/{slug}_review.md
+
+Create the `/analysis` directory if it does not exist.

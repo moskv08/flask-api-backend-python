@@ -96,3 +96,19 @@ Each step: what to do, which files to touch, how to verify it worked.
 **6. Test strategy**
 - What to test before starting (to lock in current behavior)
 - What to test after (to confirm the refactor is correct)
+
+## Saving the plan
+
+After generating the plan, **always** save it to disk:
+
+1. Derive a slug from the feature/refactor description:
+  - Lowercase, words joined by underscores, max ~5 words
+  - Examples: `user_auth_refresh_tokens`, `refactor_service_layer`
+
+2. Write the full plan output to:
+  > /plan/{slug}_plan.md
+
+3. Confirm to the user:
+  > Plan saved → /plan/{slug}_plan.md
+
+Create the `/plan` directory if it does not exist.
