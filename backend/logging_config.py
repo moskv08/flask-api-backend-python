@@ -34,7 +34,12 @@ def setup_logging(app):
             
             # Add extra fields from the log record if they exist
             if hasattr(record, 'extra_data'):
-                log_entry.update(record.extra_data)
+                # Make sure no non-serializable objects are in the extra data
+                extra_data = record.extra_data.copy() if hasattr(record.extra_data, 'copy') else dict(record.extra_data)
+                for key, value in extra_data.items():
+                    if hasattr(value, '__class__') and value.__class__.__name__ == 'UserAgent':
+                        extra_data[key] = str(value)
+                log_entry.update(extra_data)
             
             return json.dumps(log_entry)
     

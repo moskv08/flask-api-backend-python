@@ -21,8 +21,15 @@ def require_owner_or_admin(resource_owner_field, resource_owner_id):
     """Validate that the authenticated user is the owner of a resource."""
     current_user_id = get_jwt_identity()
     
-    if current_user_id != resource_owner_id:
-        raise ValidationError("Access denied", "ACCESS_DENIED", 403)
+    # Ensure both are integers for comparison
+    try:
+        current_user_id_int = int(current_user_id)
+        resource_owner_id_int = int(resource_owner_id)
+    except (ValueError, TypeError):
+        raise ValidationError("Invalid user ID format", "INVALID_USER_ID")
+    
+    if current_user_id_int != resource_owner_id_int:
+        raise ValidationError("Access denied", "ACCESS_DENIED")
         
     return True
 
@@ -32,4 +39,4 @@ def validate_user_id_in_url(user_id):
         int(user_id)
         return True
     except (ValueError, TypeError):
-        raise ValidationError("Invalid user ID format", "INVALID_USER_ID", 400)
+        raise ValidationError("Invalid user ID format", "INVALID_USER_ID")

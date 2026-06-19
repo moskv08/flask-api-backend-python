@@ -19,6 +19,17 @@ def create_user():
     try:
         data = request.get_json()
 
+        # Handle case where JSON parsing fails or returns None
+        if not data:
+            logger.info(
+                "User creation failed - invalid JSON or missing data",
+                extra={'extra_data': {
+                    'event': 'user_creation_invalid_json',
+                    'reason': 'invalid_json_or_missing_data'
+                }}
+            )
+            return jsonify(format_error('Invalid JSON or missing data', 'INVALID_JSON', 400)), 400
+
         # Input validation with Marshmallow
         is_valid, result = validate_user_data(data)
         if not is_valid:
@@ -213,6 +224,17 @@ def update_user(user_id):
             
         data = request.get_json()
         
+        # Handle case where JSON parsing fails or returns None
+        if not data:
+            logger.info(
+                "User update failed - invalid JSON or missing data",
+                extra={'extra_data': {
+                    'event': 'user_update_invalid_json',
+                    'reason': 'invalid_json_or_missing_data'
+                }}
+            )
+            return jsonify(format_error('Invalid JSON or missing data', 'INVALID_JSON', 400)), 400
+            
         # Validate update data
         is_valid, result = validate_user_data(data)
         if not is_valid:
